@@ -1,33 +1,34 @@
 package com.learning.spr.service;
 
-import com.learning.spr.dto.UserCreation;
-import com.learning.spr.dto.UserUpdate;
+import com.learning.spr.dto.request.UserCreation;
+import com.learning.spr.dto.request.UserUpdate;
+import com.learning.spr.dto.response.UserResponse;
 import com.learning.spr.entity.User;
+import com.learning.spr.exception.AppException;
+import com.learning.spr.exception.ErrorCode;
+import com.learning.spr.mapper.UserMapper;
 import com.learning.spr.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
 
 import java.util.List;
 
 @Service
-
+@RequiredArgsConstructor // to inject dependencies to class but attributes must be final
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserService {
-    @Autowired
-    private UserRepository userRepository;
+    UserRepository userRepository;
+    UserMapper userMapper;
 
     public User createUser(UserCreation request) {
-        User user = new User();
-
-        user.setUsername(request.getUsername());
-        user.setPassword(request.getPassword());
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
-        user.setBirthDate(request.getBirthDate());
-
         if(userRepository.existsByUsername(request.getUsername())){
-            throw new RuntimeException("Username already exists");
+            throw new AppException(ErrorCode.USER_EXISTED);
         }
+
+        User user = userMapper.toUser(request);
 
         return userRepository.save(user);
     }
@@ -36,20 +37,17 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public User getUserById(String id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found") );
+    public UserResponse getUserById(String id) {
+        return userMapper.toUserResponse(userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found") ));
     }
 
-    public User updateUser(String userId, UserUpdate request) {
-        User user = getUserById(userId);
+    public UserResponse updateUser(String userId, UserUpdate request) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
-        user.setBirthDate(request.getBirthDate());
-        user.setPassword(request.getPassword());
+        userMapper.updateUser(user, request);
 
-        return userRepository.save(user);
+        return userMapper.toUserResponse(userRepository.save(user));
     }
 
     public void deleteUser(String userId) {
