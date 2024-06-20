@@ -1,6 +1,6 @@
 package com.learning.spr.controller;
 
-import com.learning.spr.dto.request.ApiResponse;
+import com.learning.spr.dto.response.ApiResponse;
 import com.learning.spr.dto.request.UserCreation;
 import com.learning.spr.dto.request.UserUpdate;
 import com.learning.spr.dto.response.UserResponse;
@@ -24,7 +24,7 @@ public class UserController {
 
     @PostMapping
     // @Valid for valid the request object by definition of UserCreation valid
-    public ApiResponse<User> createUser(@RequestBody @Valid UserCreation request) {
+    ApiResponse<User> createUser(@RequestBody @Valid UserCreation request) {
         ApiResponse<User> apiResponse = new ApiResponse<>();
         apiResponse.setResult(userService.createUser(request));
 
@@ -32,17 +32,17 @@ public class UserController {
     }
 
     @GetMapping
-    public List<User> getAllUsers() {
+    List<User> getAllUsers() {
         return userService.getAllUsers();
     }
 
     @GetMapping("/{userId}")
-    public UserResponse getUser(@PathVariable String userId) {
+    UserResponse getUser(@PathVariable String userId) {
         return userService.getUserById(userId);
     }
 
     @PutMapping("/{userId}")
-    public UserResponse updateUser(@PathVariable String userId ,@RequestBody UserUpdate request) {
+    UserResponse updateUser(@PathVariable String userId ,@RequestBody UserUpdate request) {
         return userService.updateUser(userId,request);
     }
 
@@ -51,4 +51,6 @@ public class UserController {
         userService.deleteUser(userId);
         return "User deleted";
     }
+
+
 }
