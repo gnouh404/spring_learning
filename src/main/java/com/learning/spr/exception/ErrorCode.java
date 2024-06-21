@@ -8,6 +8,8 @@ public enum ErrorCode {
     USERNAME_INVALID(1003, "Username must be at least 5 characters"),
     INVALID_PASSWORD(1004, "Password must be at least 8 characters and less or equal than 20"),
     USER_NOT_EXISTED(1005,  "User does not exist"),
+    UNAUTHENTICATED(1006,  "Unauthenticated"),
+    INVAlID_TOKEN(1007,  "Invalid token"),
     ;
 
     private final int code;

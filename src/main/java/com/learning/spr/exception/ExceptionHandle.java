@@ -6,6 +6,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.text.ParseException;
+
 // class includes all exceptions
 @ControllerAdvice
 public class ExceptionHandle {
@@ -56,4 +58,13 @@ public class ExceptionHandle {
         return ResponseEntity.badRequest().body(apiResponse);
     }
 
+    @ExceptionHandler(value = ParseException.class)
+    ResponseEntity<ApiResponse> handlingJwtToken(){
+        ErrorCode errorCode = ErrorCode.INVAlID_TOKEN;
+
+        return ResponseEntity.badRequest().body(ApiResponse.builder()
+                .result(errorCode)
+                .build());
+
+    }
 }
