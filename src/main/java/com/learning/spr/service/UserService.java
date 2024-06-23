@@ -4,6 +4,7 @@ import com.learning.spr.dto.request.UserCreation;
 import com.learning.spr.dto.request.UserUpdate;
 import com.learning.spr.dto.response.UserResponse;
 import com.learning.spr.entity.User;
+import com.learning.spr.enums.Role;
 import com.learning.spr.exception.AppException;
 import com.learning.spr.exception.ErrorCode;
 import com.learning.spr.mapper.UserMapper;
@@ -16,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
+import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -24,6 +26,7 @@ import java.util.List;
 public class UserService {
     UserRepository userRepository;
     UserMapper userMapper;
+    PasswordEncoder passwordEncoder;
 
     public User createUser(UserCreation request) {
         if(userRepository.existsByUsername(request.getUsername())){
@@ -32,8 +35,11 @@ public class UserService {
 
         User user = userMapper.toUser(request);
 
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        HashSet<String> roles = new HashSet<>();
+        roles.add(Role.USER.name());
+        user.setRoles(roles);
 
         return userRepository.save(user);
     }

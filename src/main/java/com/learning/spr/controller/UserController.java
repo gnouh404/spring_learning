@@ -10,6 +10,9 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +23,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserController {
 
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
     UserService userService;
 
     @PostMapping
@@ -32,18 +36,34 @@ public class UserController {
     }
 
     @GetMapping
-    List<User> getAllUsers() {
-        return userService.getAllUsers();
+    ApiResponse<List<User>> getAllUsers() {
+
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        log.info("Username {}", authentication.getName());
+        authentication.getAuthorities().forEach(grantedAuthority -> log.info(grantedAuthority.getAuthority()));
+
+        return ApiResponse.<List<User>>builder()
+                .result(userService.getAllUsers())
+                .build();
     }
 
     @GetMapping("/{userId}")
-    UserResponse getUser(@PathVariable String userId) {
-        return userService.getUserById(userId);
+    ApiResponse<UserResponse> getUser(@PathVariable String userId) {
+
+
+
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.getUserById(userId))
+                .build();
     }
 
     @PutMapping("/{userId}")
-    UserResponse updateUser(@PathVariable String userId ,@RequestBody UserUpdate request) {
-        return userService.updateUser(userId,request);
+    ApiResponse<UserResponse> updateUser(@PathVariable String userId ,@RequestBody UserUpdate request) {
+
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.updateUser(userId,request))
+                .build();
     }
 
     @DeleteMapping("/{userId}")
